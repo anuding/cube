@@ -6,7 +6,27 @@ var cubes = [];
 var transparentCube;
 var raycaster;
 var colors = []
+var pressed = false;
+var pivot = new THREE.Object3D()
+var planes = [
+    new THREE.Plane(new THREE.Vector3(0, 1, 0), -1),//top
+    new THREE.Plane(new THREE.Vector3(0, -1, 0), -1),//bottom
+    new THREE.Plane(new THREE.Vector3(-1, 0, 0), -1),//left
+    new THREE.Plane(new THREE.Vector3(1, 0, 0), -1),//right
+    new THREE.Plane(new THREE.Vector3(0, 0, 1), -1),//front
+    new THREE.Plane(new THREE.Vector3(0, 0, -1), -1),//back
+    new THREE.Plane(new THREE.Vector3(0, 1, 0), 0),//rowmid
+    new THREE.Plane(new THREE.Vector3(-1, 0, 0), 0),//colmid1
+    new THREE.Plane(new THREE.Vector3(0, 0, 1), 0)//colmid2
 
+]
+var planeNames = [
+    'top', 'bottom', 'left', 'right', 'front', 'back', 'rowmid', 'colmid1','colmid2'
+]
+var sPos = new THREE.Vector3();
+var moving = false;
+var sIntersect;
+var sIntersectNormal;
 
 function initApp() {
     raycaster = new THREE.Raycaster();
@@ -141,23 +161,7 @@ function getFace(face) {
     return faces;
 }
 
-var pressed = false;
-var pivot = new THREE.Object3D()
-var planes = [
-    new THREE.Plane(new THREE.Vector3(0, 1, 0), -1),//top
-    new THREE.Plane(new THREE.Vector3(0, -1, 0), -1),//bottom
-    new THREE.Plane(new THREE.Vector3(-1, 0, 0), -1),//left
-    new THREE.Plane(new THREE.Vector3(1, 0, 0), -1),//right
-    new THREE.Plane(new THREE.Vector3(0, 0, 1), -1),//front
-    new THREE.Plane(new THREE.Vector3(0, 0, -1), -1),//back
-    new THREE.Plane(new THREE.Vector3(0, 1, 0), 0),//rowmid
-    new THREE.Plane(new THREE.Vector3(-1, 0, 0), 0),//colmid1
-    new THREE.Plane(new THREE.Vector3(0, 0, 1), 0)//colmid2
 
-]
-var planeNames = [
-    'top', 'bottom', 'left', 'right', 'front', 'back', 'rowmid', 'colmid1','colmid2'
-]
 function doRotate(face, axis, clockwise) {
     moving = true;
     if (Math.abs(pivot.rotation[axis]) < Math.PI / 2) {
@@ -211,10 +215,6 @@ function getIntersect(event) {
     return { intersect: intersectCube, normal: normal }
 }
 
-var sPos = new THREE.Vector3();
-var moving = false;
-var sIntersect;
-var sIntersectNormal;
 
 function onMouseDown(event) {
     if (moving)

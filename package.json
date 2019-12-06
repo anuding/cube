@@ -11,7 +11,6 @@
   },
   "private": true,
   "dependencies": {
-    "@types/webgl2": "0.0.4",
     "@angular/common": "~8.2.13",
     "@angular/core": "~8.2.13",
     "@angular/forms": "~8.2.13",
@@ -22,10 +21,12 @@
     "@ionic-native/splash-screen": "^5.0.0",
     "@ionic-native/status-bar": "^5.0.0",
     "@ionic/angular": "^4.7.1",
+    "@types/webgl2": "0.0.4",
     "core-js": "^2.5.4",
     "rxjs": "~6.5.1",
-    "tslib": "^1.9.0",
     "three": "~0.109.0",
+    "three-orbitcontrols-ts": "^0.1.2",
+    "tslib": "^1.9.0",
     "zone.js": "~0.9.1"
   },
   "devDependencies": {
