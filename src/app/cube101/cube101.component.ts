@@ -42,7 +42,7 @@ export class Cube101Component implements OnInit {
 		this.cube = new THREE.Mesh(this.geometry, this.material);
 		this.camera = new THREE.PerspectiveCamera(75, Cube101Component.width / Cube101Component.height, 0.1, 1000);
 		this.renderer.setSize(Cube101Component.width, Cube101Component.height);
-		this.scene.add(new THREE.AxesHelper(5));
+		this.scene.add(new THREE.AxesHelper(10));
 		this.scene.add(new THREE.GridHelper(10, 10));
 		// this.scene.add(this.cube)
 
@@ -57,11 +57,7 @@ export class Cube101Component implements OnInit {
 
 		this.scene.add(new THREE.AmbientLight(0xcccccc, 2));
 		this.scene.updateMatrixWorld();
-		// var lo = new FBXLoadera()
-		// this.objLoader.load('assets/MagicCube/CubeModels/DDCube/Cube.obj', object3d => {
-		// 	this.scene.add(object3d);
-		// })
-
+	
 		new MTLLoader()
 			.setPath('assets/MagicCube/CubeModels/DDCube/')
 			.load('Cube.mtl', materials => {
@@ -72,6 +68,8 @@ export class Cube101Component implements OnInit {
 					.load('Cube.obj', object => {
 						// object.position.y = - 95;
 						object.scale.set(1 / 180, 1 / 180, 1 / 180)
+
+						console.log(object)
 						this.scene.add(object);
 					});
 			});
