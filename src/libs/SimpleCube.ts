@@ -123,6 +123,15 @@ export class SimpleCube {
         this.scene.add(this.transparentCube);
     }
 
+    private timestamp = 0
+    public doRotateAPI(face, axis, clockwise, during) {
+        this.timestamp += during
+
+        setTimeout(() => {
+            this.pivot.rotation.set(0, 0, 0)
+            this.doRotate(face, axis, clockwise)
+        }, this.timestamp);
+    }
 
     public doRotate(face, axis, clockwise) {
         this.moving = true;
