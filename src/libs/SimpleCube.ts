@@ -1,9 +1,10 @@
 import * as THREE from 'three'
-import { SimpleCubeHelper as Helper } from './SimpleCubeHelper'
-import { OrbitControls } from 'three-orbitcontrols-ts';
+import { SimpleCubeHelper as Helper, SimpleCubeHelper } from './SimpleCubeHelper'
 import Stats from 'stats.js'
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+
+
 export class SimpleCube {
-    // private scene = new THREE.Scene();
     private scene;
     private camera;
     private renderer;
@@ -48,14 +49,11 @@ export class SimpleCube {
 
     private initApp() {
         this.raycaster = new THREE.Raycaster();
-
         this.scene = new THREE.Scene();
-        this.scene.background = new THREE.Color(0xbababa);
-
         var axesHelper = new THREE.AxesHelper(5);
-        // scene.add(axesHelper);
+        this.scene.add(axesHelper);
 
-        this.camera = new THREE.PerspectiveCamera(75, (1), 0.1, 1000);
+        this.camera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000);
         this.camera.position.z = 5;
 
         this.renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -67,13 +65,13 @@ export class SimpleCube {
         //     MIDDLE: THREE.MOUSE.DOLLY,
         //     RIGHT: THREE.MOUSE.PAN
         // }
-        // this.stats = new Stats();
+        this.stats = new Stats();
         // this.cpuPanel = this.stats.addPanel(new Stats.Panel('cpu', '#ff8', '#221'));
-        // this.stats.showPanel(3);
+        this.stats.showPanel(3);
         // this.stats.setMode(4);
-        // this.stats.domElement.style.position = "absolute";
-        // this.stats.domElement.style.left = "0px";
-        // this.stats.domElement.style.top = 20;
+        this.stats.domElement.style.position = "absolute";
+        this.stats.domElement.style.left = "0px";
+        this.stats.domElement.style.top = 20;
         document.getElementById('scene').innerHTML = '';
         document.getElementById('scene').appendChild(this.renderer.domElement);
         // document.getElementById('scene').appendChild(this.stats.domElement);
@@ -81,40 +79,50 @@ export class SimpleCube {
         document.addEventListener("mousedown", this.onMouseDown.bind(this), false);
         document.addEventListener("mouseup", this.onMouseUp.bind(this), false);
         document.addEventListener("mousemove", this.onMouseMove.bind(this), false);
+        document.addEventListener("keydown", this.onBlank.bind(this), false);
+
 
     }
 
     private initScene() {
-        //init Cube
-        var initPos = new THREE.Vector3(-1, 1, 1);
-        var deltaX = 0;
-        var deltaZ = 0;
-        var deltaY = 0;
-        for (var i = 1; i <= 27; i++) {
-            var geometry = new THREE.BoxGeometry(0.9, 0.9, 0.9);
+        this.scene.background = new THREE.Color(0xbababa);
+        this.scene.add(new THREE.AmbientLight(0xcccccc, 2));
 
-            var material = new THREE.MeshBasicMaterial({ vertexColors: THREE.FaceColors });
+        var model;
+        var myPromise = SimpleCubeHelper.loadModel("", "");
+        myPromise.then(obj => {
+            model = obj.clone()
+            console.log(model)
+            // model
+            var faceMeshes = []
+            faceMeshes = model.children;
+            var map = new Map()
 
-            var texture = new THREE.TextureLoader().load('assets/favicon.ico');
-            material = new THREE.MeshBasicMaterial({ map: texture });
+            faceMeshes.forEach(faceMesh => {
+                var name = faceMesh.name.split('_')[0]
 
-            var _cube = new THREE.Mesh(geometry, material);
-            _cube.position.set(initPos.x + deltaX, initPos.y + deltaY, initPos.z + deltaZ)
-            deltaX += 1
-            if (i % 3 == 0) {
-                deltaZ -= 1
-                deltaX = 0
-            }
-            if (i % 9 == 0) {
-                deltaX = 0; deltaZ = 0
-                deltaY -= 1
-            }
-            this.cubes.push(_cube);
-            this.scene.add(_cube)
-        }
-        var colors = [Math.random() * 0xffffff, Math.random() * 0xffffff, Math.random() * 0xffffff, Math.random() * 0xffffff, Math.random() * 0xffffff, Math.random() * 0xffffff];
-        // shading()
+                if (name == '0') {
+                    console.log(name + " pass")
+                    return
+                }
+                faceMesh.scale.set(1 / 180, 1 / 180, 1 / 180)
 
+                if (map.get(name)) {
+                    map.get(name).add(faceMesh.clone())
+                }
+                else {
+                    var group = new THREE.Group();
+                    group.add(faceMesh.clone())
+                    group.name = faceMesh.name
+                    map.set(name, group)
+                }
+            })
+            console.log(map)
+            map.forEach(cube => {
+                this.cubes.push(cube)
+                this.scene.add(cube)
+            })
+        })
 
         var g = new THREE.BoxGeometry(3, 3, 3);
         var m = new THREE.MeshBasicMaterial({ color: 0xffffff, opacity: 0.0 });
@@ -126,20 +134,26 @@ export class SimpleCube {
     private timestamp = 0
     public doRotateAPI(face, axis, clockwise, during) {
         this.timestamp += during
-
         setTimeout(() => {
             this.pivot.rotation.set(0, 0, 0)
             this.doRotate(face, axis, clockwise)
         }, this.timestamp);
     }
 
+    private faces;
     public doRotate(face, axis, clockwise) {
+        if (!this.moving)
+            this.faces = Helper.getFace(this.scene, face, this.cubes, this.planeNames, this.planes);
         this.moving = true;
+
+
         if (Math.abs(this.pivot.rotation[axis]) < Math.PI / 2) {
-            var faces = Helper.getFace(face, this.cubes, this.planeNames, this.planes);
+            // faces.forEach(f=>{
+            //     f.translate(0.3,0,0)
+            // })
             this.pivot.updateMatrixWorld();
             var active = []
-            faces.forEach(f => { active.push(f) })
+            this.faces.forEach(f => { active.push(f) })
             active.forEach(f => { this.pivot.attach(f) })
             this.pivot.rotation[axis] += (clockwise * 0.1)
             if (Math.abs(Math.abs(this.pivot.rotation[axis]) - Math.PI / 2) <= 0.2) {
@@ -165,7 +179,7 @@ export class SimpleCube {
         // console.log(this.renderer.info.render)
         // this.cpuPanel.update(12, 100)
         requestAnimationFrame(this.render.bind(this));
-        // this.stats.update();
+        this.stats.update();
         this.renderer.render(this.scene, this.camera);
 
     }
@@ -181,6 +195,8 @@ export class SimpleCube {
             this.pressed = true;
             this.controls.enabled = false;
         }
+        // else
+        // console.log("MISS")
     }
     public onMouseMove(event) {
         if (this.moving)
@@ -244,6 +260,16 @@ export class SimpleCube {
     public onMouseUp(event) {
         this.pressed = false;
         this.controls.enabled = true;
+    }
+
+    private time = 0;
+    public onBlank(event) {
+        this.time++
+        if (this.time % 2 == 1)
+            this.doRotateAPI('front', 'z', 1, 500)
+        else
+            this.doRotateAPI('right', 'x', -1, 500)
+
     }
 
 
