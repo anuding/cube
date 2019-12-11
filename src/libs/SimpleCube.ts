@@ -6,6 +6,7 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 
 export class SimpleCube {
     private scene;
+    private sceneControl;
     private camera;
     private renderer;
     private stats;
@@ -26,7 +27,6 @@ export class SimpleCube {
         new THREE.Plane(new THREE.Vector3(0, 1, 0), 0),//rowmid
         new THREE.Plane(new THREE.Vector3(-1, 0, 0), 0),//colmid1
         new THREE.Plane(new THREE.Vector3(0, 0, 1), 0)//colmid2
-
     ]
     private planeNames = [
         'top', 'bottom', 'left', 'right', 'front', 'back', 'rowmid', 'colmid1', 'colmid2'
@@ -87,7 +87,8 @@ export class SimpleCube {
     private initScene() {
         this.scene.background = new THREE.Color(0xbababa);
         this.scene.add(new THREE.AmbientLight(0xcccccc, 2));
-
+        this.sceneControl = new THREE.Group();
+        this.sceneControl.name = "sceneControl"
         var model;
         var myPromise = SimpleCubeHelper.loadModel("", "");
         myPromise.then(obj => {
@@ -120,8 +121,10 @@ export class SimpleCube {
             console.log(map)
             map.forEach(cube => {
                 this.cubes.push(cube)
-                this.scene.add(cube)
+                this.sceneControl.add(cube)
             })
+            this.scene.add(this.sceneControl)
+            this.sceneControl.rotation.set(1, 1, 0)
         })
 
         var g = new THREE.BoxGeometry(3, 3, 3);
@@ -142,23 +145,27 @@ export class SimpleCube {
 
     private faces;
     public doRotate(face, axis, clockwise) {
-        if (!this.moving)
-            this.faces = Helper.getFace(this.scene, face, this.cubes, this.planeNames, this.planes);
+        var normal;
+        if (!this.moving){
+            var tmp=Helper.getFace(this.scene, face, this.cubes, this.planeNames, this.planes)
+            this.faces = tmp.faces;
+            normal = tmp.normal;
+        }
         this.moving = true;
-
+        
 
         if (Math.abs(this.pivot.rotation[axis]) < Math.PI / 2) {
-            // faces.forEach(f=>{
-            //     f.translate(0.3,0,0)
-            // })
             this.pivot.updateMatrixWorld();
             var active = []
             this.faces.forEach(f => { active.push(f) })
             active.forEach(f => { this.pivot.attach(f) })
-            this.pivot.rotation[axis] += (clockwise * 0.1)
-            if (Math.abs(Math.abs(this.pivot.rotation[axis]) - Math.PI / 2) <= 0.2) {
-                this.pivot.rotation[axis] += (clockwise * (Math.abs(Math.abs(this.pivot.rotation[axis]) - Math.PI / 2)))
-            }
+
+            this.pivot.rotateOnAxis(normal,0.001)
+            // this.pivot.rotation[axis] += (clockwise * 0.1)
+            // if (Math.abs(Math.abs(this.pivot.rotation[axis]) - Math.PI / 2) <= 0.2) {
+            //     this.pivot.rotation[axis] += (clockwise * (Math.abs(Math.abs(this.pivot.rotation[axis]) - Math.PI / 2)))
+            // }
+
             console.log("rotating")
             this.pivot.updateMatrixWorld();
             active.forEach(f => { this.scene.attach(f) })
@@ -267,8 +274,8 @@ export class SimpleCube {
         this.time++
         if (this.time % 2 == 1)
             this.doRotateAPI('front', 'z', 1, 500)
-        else
-            this.doRotateAPI('right', 'x', -1, 500)
+        // else
+        //     this.doRotateAPI('right', 'x', -1, 500)
 
     }
 

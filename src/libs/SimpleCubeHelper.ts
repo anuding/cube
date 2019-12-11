@@ -50,7 +50,11 @@ export class SimpleCubeHelper {
                 scene.remove(o)
         })
 
-        scene.add(new THREE.PlaneHelper(plane, 5, 0xffff00))
+        var mat = scene.getObjectByName("sceneControl")
+        console.log(mat)
+        var afterPlane = plane.clone().applyMatrix4(mat.matrixWorld)
+
+        scene.add(new THREE.PlaneHelper(afterPlane, 5, 0xffff00))
         cubes.forEach(cube => {
             var bbox;
             if (cube instanceof THREE.Mesh) {
@@ -63,12 +67,12 @@ export class SimpleCubeHelper {
             }
             cube.updateMatrixWorld(true);
             // bbox.applyMatrix4(cube.matrixWorld);
-            if (plane.intersectsBox(bbox)) {
+            if (afterPlane.intersectsBox(bbox)) {
                 faces.push(cube)
                 scene.add(new THREE.BoxHelper(cube, new THREE.Color('red')))
             }
         })
-        return faces;
+        return {faces:faces,normal:afterPlane.normal}
     }
     static getIntersect(event, raycaster, camera, cubes, transparentCube) {
         var mouse = new THREE.Vector2();
