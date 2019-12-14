@@ -5,6 +5,7 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { CubeSolverComponent } from './cube-solver/cube-solver.component';
 import { Cube101Component } from './cube101/cube101.component';
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -13,7 +14,7 @@ import { Cube101Component } from './cube101/cube101.component';
   ],
   imports: [
     BrowserModule,
-    AppRoutingModule
+    AppRoutingModule,
   ],
   providers: [],
   bootstrap: [AppComponent]
