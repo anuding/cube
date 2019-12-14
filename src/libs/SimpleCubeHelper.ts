@@ -58,12 +58,11 @@ export class SimpleCubeHelper {
         cubes.forEach(cube => {
             var bbox;
             if (cube instanceof THREE.Mesh) {
-                cube.geometry.computeBoundingBox();
-                bbox = cube.geometry.boundingBox.clone();
+                cube.geometry.computeBoundingSphere();
+                bbox = cube.geometry.boundingSphere.clone();
             }
             if (cube instanceof THREE.Group) {
                 bbox = new THREE.Box3().setFromObject(cube);
-
             }
             cube.updateMatrixWorld(true);
             // bbox.applyMatrix4(cube.matrixWorld);
