@@ -63,16 +63,57 @@ export class SimpleCubeHelper {
         console.log(cubes)
         var face = []
         cubes.forEach(cube => {
-            if (cube.name.indexOf(faceName)!=-1)
+            if (cube.name.indexOf(faceName) != -1)
                 face.push(cube)
         });
-        if (face.length != 9)
-        {
+        if (face.length != 9) {
             console.log(face)
             throw "face doesn't have correct number of cubes"
 
         }
         return face;
+    }
+    static replaceAt(str, index, replacement) {
+        return str.substr(0, index) + replacement + str.substr(index + replacement.length);
+    }
+    static renameCubes(faceName, cubes) {
+        var order = []
+        switch (faceName) {
+            case "F":
+                order = ['U', 'R', 'D', 'L', 'U']
+                break;
+            case "B":
+                order = ['U', 'L', 'D', 'R', 'U']
+                break;
+            case "L":
+                order = ['U', 'F', 'D', 'B', 'U']
+                break;
+            case "R":
+                order = ['U', 'B', 'D', 'F', 'U']
+                break;
+            case "U":
+                order = ['B', 'R', 'F', 'L', 'B']
+                break;
+            case "D":
+                order = ['F', 'R', 'B', 'L', 'F']
+                break;
+        }
+        console.log(order)
+        cubes.forEach(cube => {
+            var name = cube.name
+            for (var i = 0; i < name.length; i++) {
+                console.log(name[i])
+                for (var j = 0; j < 5; j++) {
+                    if (name[i] == order[j]) {
+                        name = this.replaceAt(name, i, order[j + 1])
+                        break;
+                    }
+                }
+            }
+            console.log(name)
+            console.log(cube.name)
+            cube.name = name
+        })
     }
     static getIntersect(event, raycaster, camera, cubes, transparentCube) {
         var mouse = new THREE.Vector2();

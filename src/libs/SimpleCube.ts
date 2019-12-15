@@ -144,7 +144,7 @@ export class SimpleCube {
         setTimeout(() => {
             this.pivot.rotation.set(0, 0, 0)
             this.doRotate(faceName, degree, duration)
-        }, 10);
+        }, this.timestamp);
         // this.timestamp
     }
 
@@ -168,7 +168,7 @@ export class SimpleCube {
             var active = []
             this.faces.forEach(f => { active.push(f) })
             active.forEach(f => { this.pivot.attach(f) })
-            this.pivot.quaternion.slerp(this.targetQuaternion, 0.1);
+            this.pivot.quaternion.slerp(this.targetQuaternion, 0.3);
             if (THREE.Math.radToDeg(this.pivot.quaternion.angleTo(this.targetQuaternion)) < 5) {
                 this.pivot.quaternion.slerp(this.targetQuaternion, 1);
             }
@@ -178,7 +178,7 @@ export class SimpleCube {
         }
         else {
             //the rotation is over, should change name for every cube of this face
-
+            Helper.renameCubes(faceName,this.faces)
             //update rotating status
             this.pressed = false;
             this.moving = false;
