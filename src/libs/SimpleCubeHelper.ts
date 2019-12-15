@@ -15,8 +15,24 @@ export class SimpleCubeHelper {
             case "F":
                 originVec = new THREE.Vector3(0, 0, 1)
                 break;
+            case "B":
+                originVec = new THREE.Vector3(0, 0, -1)
+                break;
+            case "L":
+                originVec = new THREE.Vector3(1, 0, 0)
+                break;
+            case "R":
+                originVec = new THREE.Vector3(-1, 0, 0)
+                break;
+            case "U":
+                originVec = new THREE.Vector3(0, 1, 0)
+                break;
+            case "D":
+                originVec = new THREE.Vector3(0, -1, 0)
+                break;
         }
-        var faceNormal = originVec.applyMatrix4(CubeScene.matrixWorld);
+        var faceNormal = originVec
+        // var faceNormal = faceNormal.applyMatrix4(CubeScene.matrixWorld);
         return faceNormal
     }
 
@@ -47,11 +63,15 @@ export class SimpleCubeHelper {
         console.log(cubes)
         var face = []
         cubes.forEach(cube => {
-            if (cube.name.split('_')[1] == faceName)
+            if (cube.name.indexOf(faceName)!=-1)
                 face.push(cube)
         });
         if (face.length != 9)
+        {
+            console.log(face)
             throw "face doesn't have correct number of cubes"
+
+        }
         return face;
     }
     static getIntersect(event, raycaster, camera, cubes, transparentCube) {

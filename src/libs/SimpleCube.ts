@@ -2,6 +2,7 @@ import * as THREE from 'three'
 import { SimpleCubeHelper as Helper } from './SimpleCubeHelper'
 import Stats from 'stats.js'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+import { ArrowHelper } from 'three';
 
 
 export class SimpleCube {
@@ -116,7 +117,7 @@ export class SimpleCube {
                 else {
                     var group = new THREE.Group();
                     group.add(faceMesh.clone())
-                    group.name = faceMesh.name
+                    group.name = name
                     map.set(name, group)
                 }
             })
@@ -125,8 +126,9 @@ export class SimpleCube {
                 this.cubes.push(cube)
                 this.SimpleCubeScene.add(cube)
             })
+            this.SimpleCubeScene.attach(this.pivot)
             this.scene.add(this.SimpleCubeScene)
-            this.SimpleCubeScene.rotation.set(1, 1, 0)
+            this.SimpleCubeScene.rotation.set(Math.PI / 2, 0, 0)
         })
 
         var g = new THREE.BoxGeometry(3, 3, 3);
@@ -147,56 +149,31 @@ export class SimpleCube {
 
     private faces;
     private normal;
-    private destinationQuaternion;
+    private targetQuaternion = new THREE.Quaternion();
     public doRotate(faceName, degree, duration) {
         if (!this.moving) {
+            console.log("hi")
             this.faces = Helper.getFace(faceName, this.cubes)
-            this.normal = Helper.getNormalByFaceName(faceName, this.SimpleCubeScene)
-            var target = new THREE.Object3D()
-            target.rotateOnAxis(this.normal, THREE.Math.degToRad(degree))
-            target.name = "target"
-            this.SimpleCubeScene.add(target.clone())
-
-
-            var axesHelper = new THREE.AxesHelper(5);
-            this.scene.add(axesHelper);
         }
+
         this.moving = true;
         this.normal = Helper.getNormalByFaceName(faceName, this.SimpleCubeScene)
 
-        this.destinationQuaternion = new THREE.Quaternion()
-        this.scene.getObjectByName("target").getWorldQuaternion(this.destinationQuaternion)
+        this.targetQuaternion.setFromAxisAngle(this.normal, Math.PI / 2);
+        // console.log(THREE.Math.radToDeg(this.pivot.quaternion.angleTo(this.q)))
 
-        // console.log(this.SimpleCubeScene)
-        var pivotQuaternion = new THREE.Quaternion()
-        pivotQuaternion = this.pivot.getWorldQuaternion(this.pivot.quaternion)
-
-        console.log(this.destinationQuaternion)
-        console.log(pivotQuaternion)
-        console.log(THREE.Math.radToDeg(pivotQuaternion.angleTo(this.destinationQuaternion)))
-
-        if (pivotQuaternion.angleTo(this.destinationQuaternion) > 0) {
+        if (THREE.Math.radToDeg(this.pivot.quaternion.angleTo(this.targetQuaternion)) > 0) {
             this.pivot.updateMatrixWorld();
             var active = []
             this.faces.forEach(f => { active.push(f) })
             active.forEach(f => { this.pivot.attach(f) })
+            this.pivot.quaternion.slerp(this.targetQuaternion, 0.1);
 
-
-            this.pivot.rotateOnWorldAxis(this.normal, 0.1)
-            if (pivotQuaternion.angleTo(this.destinationQuaternion) <= 0.1) {
-                this.pivot.rotateOnWorldAxis(this.normal, pivotQuaternion.angleTo(this.destinationQuaternion))
-                console.log("over")
-                console.log(this.pivot.quaternion.angleTo(this.destinationQuaternion))
-            }
-
-            // console.log("rotating")
             this.pivot.updateMatrixWorld();
-            active.forEach(f => { this.scene.attach(f) })
+            active.forEach(f => { this.SimpleCubeScene.attach(f) })
             requestAnimationFrame(this.doRotate.bind(this, faceName, degree, duration));
-
         }
         else {
-            this.scene.remove(this.scene.getObjectByName("target"))
             //the rotation is over, should change name for every cube of this face
             this.pressed = false;
             this.moving = false;
@@ -205,16 +182,12 @@ export class SimpleCube {
     }
 
     private render() {
-        // this.controls.update()
-        // console.log(performance)
-        // console.log(navigator.hardwareConcurrency)
-        // console.log(this.renderer.info.render)
-        // this.cpuPanel.update(12, 100)
-        // this.SimpleCubeScene.rotation.x += 0.01
+        this.SimpleCubeScene.rotation.x += 0.01
+        this.SimpleCubeScene.rotation.z += 0.01
+
         requestAnimationFrame(this.render.bind(this));
         this.stats.update();
         this.renderer.render(this.scene, this.camera);
-
     }
 
     public onMouseDown(event) {
@@ -300,8 +273,8 @@ export class SimpleCube {
         this.time++
         if (this.time % 2 == 1)
             this.doRotateAPI('F', 90, 200)
-        // else
-        //     this.doRotateAPI('right', 'x', -1, 500)
+        else
+            this.doRotateAPI('R', 90, 200)
 
     }
 
