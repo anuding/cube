@@ -144,7 +144,8 @@ export class SimpleCube {
         setTimeout(() => {
             this.pivot.rotation.set(0, 0, 0)
             this.doRotate(faceName, degree, duration)
-        }, this.timestamp);
+        }, 10);
+        // this.timestamp
     }
 
     private faces;
@@ -160,7 +161,7 @@ export class SimpleCube {
         this.normal = Helper.getNormalByFaceName(faceName, this.SimpleCubeScene)
 
         this.targetQuaternion.setFromAxisAngle(this.normal, Math.PI / 2);
-        // console.log(THREE.Math.radToDeg(this.pivot.quaternion.angleTo(this.q)))
+        console.log(THREE.Math.radToDeg(this.pivot.quaternion.angleTo(this.targetQuaternion)))
 
         if (THREE.Math.radToDeg(this.pivot.quaternion.angleTo(this.targetQuaternion)) > 0) {
             this.pivot.updateMatrixWorld();
@@ -168,13 +169,17 @@ export class SimpleCube {
             this.faces.forEach(f => { active.push(f) })
             active.forEach(f => { this.pivot.attach(f) })
             this.pivot.quaternion.slerp(this.targetQuaternion, 0.1);
-
+            if (THREE.Math.radToDeg(this.pivot.quaternion.angleTo(this.targetQuaternion)) < 5) {
+                this.pivot.quaternion.slerp(this.targetQuaternion, 1);
+            }
             this.pivot.updateMatrixWorld();
             active.forEach(f => { this.SimpleCubeScene.attach(f) })
             requestAnimationFrame(this.doRotate.bind(this, faceName, degree, duration));
         }
         else {
             //the rotation is over, should change name for every cube of this face
+
+            //update rotating status
             this.pressed = false;
             this.moving = false;
         }
@@ -270,6 +275,8 @@ export class SimpleCube {
 
     private time = 0;
     public onBlank(event) {
+        if (this.moving)
+            return
         this.time++
         if (this.time % 2 == 1)
             this.doRotateAPI('F', 90, 200)
