@@ -1,0 +1,3 @@
+<div id='scene'> </div>
+<input [value]="color16" [style.background]="rgbaText" [cpAlphaChannel]="'always'" [cpOutputFormat]="'hex'"
+    [colorPicker]="color16" (colorPickerChange)="rgbaText=onChangeColorHex8($event);color16=$event" />
