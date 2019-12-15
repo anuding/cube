@@ -5,10 +5,36 @@ import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader'
 import { DDSLoader } from 'three/examples/jsm/loaders/DDSLoader.js';
 import { MTLLoader } from 'three/examples/jsm/loaders/MTLLoader.js';
 
-
 export class SimpleCubeHelper {
     static width = 300;
     static height = 300;
+
+    static getNormalByFaceName(faceName, CubeScene) {
+        var originVec;
+        switch (faceName) {
+            case "F":
+                originVec = new THREE.Vector3(0, 0, 1)
+                break;
+            case "B":
+                originVec = new THREE.Vector3(0, 0, -1)
+                break;
+            case "L":
+                originVec = new THREE.Vector3(1, 0, 0)
+                break;
+            case "R":
+                originVec = new THREE.Vector3(-1, 0, 0)
+                break;
+            case "U":
+                originVec = new THREE.Vector3(0, 1, 0)
+                break;
+            case "D":
+                originVec = new THREE.Vector3(0, -1, 0)
+                break;
+        }
+        var faceNormal = originVec
+        // var faceNormal = faceNormal.applyMatrix4(CubeScene.matrixWorld);
+        return faceNormal
+    }
 
     static getRotateDir(dragVector, intersectNormal) {
         var dragDir = VecUtil.getMaxCompoent(dragVector)
@@ -33,45 +59,61 @@ export class SimpleCubeHelper {
 
     }
 
-    static getFace(scene, face, cubes, planeNames, planes) {
-        var plane;
-        for (var i = 0; i < planeNames.length; i++) {
-            if (face == planeNames[i]) {
-                plane = planes[i]
-                break;
-            }
-        }
-        var faces = []
-        console.log(scene)
-        scene.children.forEach(o => {
-            if (o instanceof THREE.BoxHelper)
-                scene.remove(o)
-            if (o instanceof THREE.PlaneHelper)
-                scene.remove(o)
-        })
-
-        var mat = scene.getObjectByName("sceneControl")
-        console.log(mat)
-        var afterPlane = plane.clone().applyMatrix4(mat.matrixWorld)
-
-        scene.add(new THREE.PlaneHelper(afterPlane, 5, 0xffff00))
+    static getFace(faceName, cubes) {
+        console.log(cubes)
+        var face = []
         cubes.forEach(cube => {
-            var bbox;
-            if (cube instanceof THREE.Mesh) {
-                cube.geometry.computeBoundingSphere();
-                bbox = cube.geometry.boundingSphere.clone();
+            if (cube.name.indexOf(faceName) != -1)
+                face.push(cube)
+        });
+        if (face.length != 9) {
+            console.log(face)
+            throw "face doesn't have correct number of cubes"
+
+        }
+        return face;
+    }
+    static replaceAt(str, index, replacement) {
+        return str.substr(0, index) + replacement + str.substr(index + replacement.length);
+    }
+    static renameCubes(faceName, cubes) {
+        var order = []
+        switch (faceName) {
+            case "F":
+                order = ['U', 'R', 'D', 'L', 'U']
+                break;
+            case "B":
+                order = ['U', 'L', 'D', 'R', 'U']
+                break;
+            case "L":
+                order = ['U', 'F', 'D', 'B', 'U']
+                break;
+            case "R":
+                order = ['U', 'B', 'D', 'F', 'U']
+                break;
+            case "U":
+                order = ['B', 'R', 'F', 'L', 'B']
+                break;
+            case "D":
+                order = ['F', 'R', 'B', 'L', 'F']
+                break;
+        }
+        console.log(order)
+        cubes.forEach(cube => {
+            var name = cube.name
+            for (var i = 0; i < name.length; i++) {
+                console.log(name[i])
+                for (var j = 0; j < 5; j++) {
+                    if (name[i] == order[j]) {
+                        name = this.replaceAt(name, i, order[j + 1])
+                        break;
+                    }
+                }
             }
-            if (cube instanceof THREE.Group) {
-                bbox = new THREE.Box3().setFromObject(cube);
-            }
-            cube.updateMatrixWorld(true);
-            // bbox.applyMatrix4(cube.matrixWorld);
-            if (afterPlane.intersectsBox(bbox)) {
-                faces.push(cube)
-                scene.add(new THREE.BoxHelper(cube, new THREE.Color('red')))
-            }
+            console.log(name)
+            console.log(cube.name)
+            cube.name = name
         })
-        return {faces:faces,normal:afterPlane.normal}
     }
     static getIntersect(event, raycaster, camera, cubes, transparentCube) {
         var mouse = new THREE.Vector2();
