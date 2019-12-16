@@ -9,29 +9,37 @@ export class SimpleCubeHelper {
     static width = 300;
     static height = 300;
 
+    static vecF = new THREE.Vector3(0, 0, 1);
+    static vecB = new THREE.Vector3(0, 0, -1)
+    static vecL = new THREE.Vector3(1, 0, 0)
+    static vecR = new THREE.Vector3(-1, 0, 0)
+    static vecU = new THREE.Vector3(0, 1, 0)
+    static vecD = new THREE.Vector3(0, -1, 0)
+
+    static originVec;
     static getNormalByFaceName(faceName, CubeScene) {
-        var originVec;
+
         switch (faceName) {
             case "F":
-                originVec = new THREE.Vector3(0, 0, 1)
+                this.originVec = this.vecF
                 break;
             case "B":
-                originVec = new THREE.Vector3(0, 0, -1)
+                this.originVec = this.vecB
                 break;
             case "L":
-                originVec = new THREE.Vector3(1, 0, 0)
+                this.originVec = this.vecL
                 break;
             case "R":
-                originVec = new THREE.Vector3(-1, 0, 0)
+                this.originVec = this.vecR
                 break;
             case "U":
-                originVec = new THREE.Vector3(0, 1, 0)
+                this.originVec = this.vecU
                 break;
             case "D":
-                originVec = new THREE.Vector3(0, -1, 0)
+                this.originVec = this.vecD
                 break;
         }
-        var faceNormal = originVec
+        var faceNormal = this.originVec
         // var faceNormal = faceNormal.applyMatrix4(CubeScene.matrixWorld);
         return faceNormal
     }
@@ -60,7 +68,6 @@ export class SimpleCubeHelper {
     }
 
     static getFace(faceName, cubes) {
-        console.log(cubes)
         var face = []
         cubes.forEach(cube => {
             if (cube.name.indexOf(faceName) != -1)
@@ -76,42 +83,42 @@ export class SimpleCubeHelper {
     static replaceAt(str, index, replacement) {
         return str.substr(0, index) + replacement + str.substr(index + replacement.length);
     }
+    static orderF = new Map([['U', 'R'], ['R', 'D'], ['D', 'L'], ['L', 'U']])
+    static orderB = new Map([['U', 'L'], ['L', 'D'], ['D', 'R'], ['R', 'U']])
+    static orderL = new Map([['U', 'F'], ['F', 'D'], ['D', 'B'], ['B', 'U']])
+    static orderR = new Map([['U', 'B'], ['B', 'D'], ['D', 'F'], ['F', 'U']])
+    static orderU = new Map([['B', 'R'], ['R', 'F'], ['F', 'L'], ['L', 'B']])
+    static orderD = new Map([['F', 'R'], ['R', 'B'], ['B', 'L'], ['L', 'F']])
+    static order = new Map()
     static renameCubes(faceName, cubes) {
-        var order = []
+
         switch (faceName) {
             case "F":
-                order = ['U', 'R', 'D', 'L', 'U']
+                this.order = this.orderF
                 break;
             case "B":
-                order = ['U', 'L', 'D', 'R', 'U']
+                this.order = this.orderB
                 break;
             case "L":
-                order = ['U', 'F', 'D', 'B', 'U']
+                this.order = this.orderL
                 break;
             case "R":
-                order = ['U', 'B', 'D', 'F', 'U']
+                this.order = this.orderR
                 break;
             case "U":
-                order = ['B', 'R', 'F', 'L', 'B']
+                this.order = this.orderU
                 break;
             case "D":
-                order = ['F', 'R', 'B', 'L', 'F']
+                this.order = this.orderD
                 break;
         }
-        console.log(order)
         cubes.forEach(cube => {
             var name = cube.name
             for (var i = 0; i < name.length; i++) {
-                console.log(name[i])
-                for (var j = 0; j < 5; j++) {
-                    if (name[i] == order[j]) {
-                        name = this.replaceAt(name, i, order[j + 1])
-                        break;
-                    }
+                if (this.order.get(name[i])) {
+                    name = this.replaceAt(name, i, this.order.get(name[i]))
                 }
             }
-            console.log(name)
-            console.log(cube.name)
             cube.name = name
         })
     }
