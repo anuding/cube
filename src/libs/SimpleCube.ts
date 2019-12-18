@@ -138,13 +138,9 @@ export class SimpleCube {
         this.scene.add(this.transparentCube);
     }
 
-    private timestamp = 0
+    private actionQueue=new ActionQueue();
     public doRotateAPI(faceName, degree, duration) {
-        this.timestamp += duration
-        setTimeout(() => {
-            this.pivot.rotation.set(0, 0, 0)
-            this.doRotate(faceName, degree, duration)
-        }, this.timestamp);
+     
     }
 
     private faces;
