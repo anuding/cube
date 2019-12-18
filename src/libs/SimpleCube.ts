@@ -3,7 +3,7 @@ import { SimpleCubeHelper as Helper } from './SimpleCubeHelper'
 import Stats from 'stats.js'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { ArrowHelper } from 'three';
-
+import { ActionQueue } from './ActionQueue'
 
 export class SimpleCube {
     private scene;
