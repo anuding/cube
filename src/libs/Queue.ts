@@ -9,7 +9,7 @@ export class Queue {
     enqueue(element) {
         this.items.push(element)
     }
-    dequeue(element) {
+    dequeue() {
         if (this.isEmpty())
             return "it's an empty queue, can't dequeue";
         return this.items.shift();
