@@ -10,6 +10,7 @@ export class Queue {
         this.items.push(element)
     }
     dequeue() {
+        console.log('dequeue!')
         if (this.isEmpty())
             return "it's an empty queue, can't dequeue";
         return this.items.shift();

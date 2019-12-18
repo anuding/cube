@@ -110,7 +110,7 @@ export class SimpleCube {
         })
         setTimeout(() => {
             this.pressed = true;
-        }, 500);
+        }, 1000);
     }
 
     private actionQueue = new ActionQueue();
@@ -131,8 +131,8 @@ export class SimpleCube {
         this.normal = Helper.getNormalByFaceName(faceName, this.SimpleCubeScene)
 
         this.targetQuaternion.setFromAxisAngle(this.normal, Math.PI / 2);
-        // console.log(THREE.Math.radToDeg(this.pivot.quaternion.angleTo(this.targetQuaternion)))
-
+        console.log(THREE.Math.radToDeg(this.pivot.quaternion.angleTo(this.targetQuaternion)))
+        console.log("rota")
         if (THREE.Math.radToDeg(this.pivot.quaternion.angleTo(this.targetQuaternion)) > 0) {
             this.pivot.updateMatrixWorld();
             var active = []
@@ -153,8 +153,9 @@ export class SimpleCube {
             this.holdAction = false;
             this.moving = false;
             setTimeout(() => {
+                console.log("release")
                 this.pressed = true;
-            }, 500);
+            }, 1500);
 
         }
 
@@ -163,7 +164,6 @@ export class SimpleCube {
     private currentAction;
     private holdAction = false;
     private render() {
-
         this.SimpleCubeScene.rotation.x += 0.01
         this.SimpleCubeScene.rotation.z += 0.01
         if (!this.actionQueue.isEmpty() && !this.holdAction && this.pressed) {
@@ -171,6 +171,7 @@ export class SimpleCube {
             this.actionQueue.dequeue();
             this.holdAction = true;
             this.pressed = false;
+            this.pivot.rotation.set(0, 0, 0)
         }
         if (this.holdAction) {
             this.doRotate(this.currentAction.faceName, this.currentAction.degree, this.currentAction.duration)
@@ -184,6 +185,5 @@ export class SimpleCube {
 
     private pressed = false;
     public onBlank(event) {
-        
     }
 }
