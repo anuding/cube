@@ -21,13 +21,13 @@ export class SimpleCube {
         this.render()
     }
 
-    constructor() {
-        this.initApp();
+    constructor(dom) {
+        this.initApp(dom);
         this.initScene();
     }
 
 
-    private initApp() {
+    private initApp(dom) {
         this.scene = new THREE.Scene();
         var axesHelper = new THREE.AxesHelper(5);
         this.scene.add(axesHelper);
@@ -51,8 +51,9 @@ export class SimpleCube {
         this.stats.domElement.style.position = "absolute";
         this.stats.domElement.style.left = "0px";
         this.stats.domElement.style.top = 20;
-        document.getElementById('scene').innerHTML = '';
-        document.getElementById('scene').appendChild(this.renderer.domElement);
+        document.getElementById(dom).innerHTML = '';
+        document.getElementById(dom).appendChild(this.renderer.domElement);
+
         // document.getElementById('scene').appendChild(this.stats.domElement);
 
         // document.addEventListener("mousedown", this.onMouseDown.bind(this), false);
@@ -166,8 +167,8 @@ export class SimpleCube {
     private currentAction;
     private holdAction = false;
     private render() {
-        this.SimpleCubeScene.rotation.x += 0.01
-        this.SimpleCubeScene.rotation.z += 0.01
+        this.SimpleCubeScene.rotation.x += 0.05
+        this.SimpleCubeScene.rotation.z += 0.05
         if (!this.actionQueue.isEmpty() && !this.holdAction && this.pressed) {
             this.currentAction = this.actionQueue.getFront();
             this.actionQueue.dequeue();
