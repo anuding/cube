@@ -25,7 +25,7 @@
     "ngx-color-picker": "^8.2.0",
     "rxjs": "~6.5.1",
     "stats.js": "^0.17.0",
-    "three": "~0.109.0",
+    "three": "~0.125.0",
     "three-fbx-loader": "^1.0.3",
     "three-orbitcontrols-ts": "^0.1.2",
     "tslib": "^1.9.0",
